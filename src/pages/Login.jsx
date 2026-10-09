@@ -1,0 +1,10 @@
+import React from 'react';
+import { ArrowLeft, LoaderCircle, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
+import Logo from '../components/Logo';
+import API_URL from '../api';
+
+export default function Login(){
+ const [email,setEmail]=React.useState(''); const [password,setPassword]=React.useState(''); const [loading,setLoading]=React.useState(false); const [error,setError]=React.useState('');
+ const submit=async e=>{e.preventDefault();setLoading(true);setError('');try{const r=await fetch(`${API_URL}/api/auth/login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message);localStorage.setItem('doctorSahabToken',d.token);localStorage.setItem('doctorSahabUser',JSON.stringify(d.user));location.hash='/chat';}catch(e){setError(e.message||'Login failed.')}finally{setLoading(false)}};
+ return <div className="auth-page"><header className="auth-topbar"><Logo/><a href="#/" className="back-home"><ArrowLeft size={15}/> Back to Home</a></header><main className="auth-card"><div className="auth-icon"><LockKeyhole size={24}/></div><div className="result-eyebrow">Welcome back</div><h1>Login to DoctorSahab</h1><p className="auth-subtitle">Access your health conversations and saved reports.</p><form onSubmit={submit} className="auth-form"><label>Email<><div className="field-with-icon"><Mail size={17}/><input type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="you@example.com"/></div></></label><label>Password<><div className="field-with-icon"><LockKeyhole size={17}/><input type="password" value={password} onChange={e=>setPassword(e.target.value)} required placeholder="••••••••"/></div></></label>{error&&<div className="auth-error">{error}</div>}<button className="primary-btn auth-submit" disabled={loading}>{loading?<><LoaderCircle className="spin" size={17}/> Logging in...</>:<>Login</>}</button></form><div className="auth-foot"><ShieldCheck size={15}/> Your account is used to keep your health history private.</div><p>Don't have an account? <a href="#/register">Create one</a></p></main></div>
+}
