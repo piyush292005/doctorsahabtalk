@@ -259,6 +259,73 @@ const speakText = (text) => {
         role: 'assistant',
         text: result.reply
       };
+      
+      // Save a structured health report for logged-in users.
+     
+      // Save a structured health report for logged-in users.
+      try {
+        const token = localStorage.getItem('doctorSahabToken');
+
+        if (token) {
+          const analysisResponse = await fetch(
+            `${API_URL}/api/ai/analyze`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({ message: value })
+            }
+          );
+
+          const analysisResult = await analysisResponse.json();
+
+          if (
+            !analysisResponse.ok ||
+            !analysisResult.ok ||
+            !analysisResult.allowed ||
+            !analysisResult.data
+          ) {
+            throw new Error(
+              analysisResult.message || 'Could not create a health report.'
+            );
+          }
+
+          const saveResponse = await fetch(
+            `${API_URL}/api/health/records`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                question: value,
+                data: analysisResult.data
+              })
+            }
+          );
+
+          const saveResult = await saveResponse.json();
+
+          if (!saveResponse.ok || !saveResult.ok) {
+            throw new Error(
+              saveResult.message || 'Could not save the health report.'
+            );
+          }
+
+          console.log('Health report saved successfully.');
+        } else {
+          console.warn('Health report not saved: user is not logged in.');
+        }
+      } catch (saveError) {
+        console.error('Health report save failed:', saveError);
+        if (mountedRef.current) {
+          setError(`Chat reply received, but report was not saved: ${saveError.message}`);
+        }
+      }
+
 
       const finalMessages = [
         ...messagesRef.current,
