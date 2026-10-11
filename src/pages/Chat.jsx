@@ -410,6 +410,7 @@ const speakText = (text) => {
       }
     };
 
+    
     recognition.onresult = (event) => {
       let interimTranscript = '';
 
@@ -511,6 +512,13 @@ const speakText = (text) => {
     event?.preventDefault();
     sendMessage(message, true);
   };
+  
+const currentUser = JSON.parse(
+  localStorage.getItem('doctorSahabUser') || '{}'
+);
+
+const displayName = currentUser.name || 'User';
+
 
   return (
     <div className="chat-page">
@@ -522,8 +530,12 @@ const speakText = (text) => {
         </a>
 
         <div className="user-chip">
-          <span className="avatar">P</span>
-          <span className="user-name">Piyush</span>
+          
+<span className="avatar">
+  {displayName.charAt(0).toUpperCase()}
+</span>
+<span className="user-name">{displayName}</span>
+
           <span>⌄</span>
         </div>
       </header>
